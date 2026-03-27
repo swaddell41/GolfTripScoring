@@ -78,19 +78,20 @@ export function BlindScorecard({ onComplete, onReveal }: BlindScorecardProps) {
     }
   }, [completedHoles.length, trip, activeRoundIndex, isEditing]);
 
+  const roundHolesCompleted = round?.holesCompleted ?? 0;
+
   useEffect(() => {
     if (!trip || activeRoundIndex === null || isEditing) return;
-    const count = completedHoles.length;
-    if (count <= prevCompletedCount.current) return;
+    if (roundHolesCompleted <= prevCompletedCount.current) return;
 
     const newAch = checkAchievements(trip, activeRoundIndex, prevCompletedCount.current);
-    prevCompletedCount.current = count;
+    prevCompletedCount.current = roundHolesCompleted;
 
     if (newAch.length > 0) {
       for (const a of newAch) addAchievement(a);
       setPendingAchievements((prev) => [...prev, ...newAch]);
     }
-  }, [completedHoles.length, trip, activeRoundIndex, isEditing, addAchievement]);
+  }, [roundHolesCompleted, trip, activeRoundIndex, isEditing, addAchievement]);
 
   const confirmAndNavigate = useCallback(
     (direction: 'next' | 'prev') => {
