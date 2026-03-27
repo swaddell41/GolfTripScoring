@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useTripStore } from '../../store/tripStore';
 import { getCourse } from '../../config/courses';
 import { formatMatchPlayStatus } from '../../lib/matchPlay';
-import { syncTripToFirestore } from '../../firebase/sync';
+import { isFirebaseConfigured } from '../../firebase/config';
 import { players } from '../../config/players';
 import { Toast } from '../shared/Toast';
 import { PirateFlag } from '../brand/TampaHero';
@@ -41,12 +41,7 @@ export function TripDashboard({ onNewRound, onViewScores, onLeaveTrip, onEditRou
   const completedRounds = trip.rounds.filter((r) => r.isComplete);
   const canStartNew = completedRounds.length < 5;
 
-  const handleSync = async () => {
-    if (trip) {
-      await syncTripToFirestore(trip);
-      setToast('Trip synced to cloud');
-    }
-  };
+  const firebaseActive = isFirebaseConfigured();
 
   const handleCopyId = () => {
     navigator.clipboard?.writeText(trip.id).then(() => {
@@ -97,15 +92,14 @@ export function TripDashboard({ onNewRound, onViewScores, onLeaveTrip, onEditRou
             >
               {trip.id}
             </button>
-            <div className="text-xs text-slate-500 mt-0.5">Tap to copy</div>
+            <div className="text-xs text-slate-500 mt-0.5">Tap to copy &middot; Share with crew to join</div>
           </div>
-          <button
-            onClick={handleSync}
-            className="px-3 py-2 rounded-xl bg-slate-700 text-slate-300 text-xs font-medium
-              active:bg-slate-600 transition-colors"
-          >
-            Sync
-          </button>
+          {firebaseActive && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Live</span>
+            </div>
+          )}
         </div>
 
         {/* Points Leaderboard */}

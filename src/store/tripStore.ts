@@ -29,6 +29,7 @@ import { calculateNines } from '../lib/nines';
 import { calculate90HoleMatchStatus } from '../lib/matchPlay';
 import { calculateDailyMatchPlay } from '../lib/matchPlay';
 import { calculateBonuses, createEmptyBonuses } from '../lib/bonuses';
+import { syncTripToFirestore } from '../firebase/sync';
 
 function generateTripId(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -701,3 +702,12 @@ export const useTripStore = create<TripStore>()(
     },
   ),
 );
+
+let prevLastUpdated = 0;
+useTripStore.subscribe((state) => {
+  const trip = state.trip;
+  if (trip && trip.lastUpdated !== prevLastUpdated) {
+    prevLastUpdated = trip.lastUpdated;
+    syncTripToFirestore(trip);
+  }
+});
