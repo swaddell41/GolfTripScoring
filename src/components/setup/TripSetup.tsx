@@ -49,6 +49,7 @@ export function TripSetup({ onTripReady }: TripSetupProps) {
       const trip = await loadTripFromFirestore(code);
       if (trip) {
         loadTrip(trip);
+        useTripStore.setState({ activeRoundIndex: null });
         startRealtimeSync(code);
         onTripReady();
       } else {

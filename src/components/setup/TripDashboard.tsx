@@ -12,6 +12,7 @@ import type { PlayerId } from '../../types';
 
 interface TripDashboardProps {
   onNewRound: () => void;
+  onJoinRound: (roundIndex: number) => void;
   onViewScores: () => void;
   onLeaveTrip: () => void;
   onEditRound: (roundIndex: number) => void;
@@ -29,7 +30,7 @@ function liveTotal(b: PointsBreakdown): number {
   return b.roundWins + b.birdies + b.eagles + b.overallMatch + b.firLeader + b.girLeader;
 }
 
-export function TripDashboard({ onNewRound, onViewScores, onLeaveTrip, onEditRound }: TripDashboardProps) {
+export function TripDashboard({ onNewRound, onJoinRound, onViewScores, onLeaveTrip, onEditRound }: TripDashboardProps) {
   const trip = useTripStore((s) => s.trip);
   const [toast, setToast] = useState<string | null>(null);
   const [showLive, setShowLive] = useState(false);
@@ -39,7 +40,9 @@ export function TripDashboard({ onNewRound, onViewScores, onLeaveTrip, onEditRou
   if (!trip) return null;
 
   const completedRounds = trip.rounds.filter((r) => r.isComplete);
-  const canStartNew = completedRounds.length < 5;
+  const activeRoundIdx = trip.rounds.findIndex((r) => !r.isComplete);
+  const activeRound = activeRoundIdx >= 0 ? trip.rounds[activeRoundIdx] : null;
+  const canStartNew = completedRounds.length < 5 && !activeRound;
 
   const firebaseActive = isFirebaseConfigured();
 
@@ -346,6 +349,17 @@ export function TripDashboard({ onNewRound, onViewScores, onLeaveTrip, onEditRou
 
         {/* Actions */}
         <div className="space-y-3 pt-2">
+          {activeRound && (
+            <button
+              onClick={() => onJoinRound(activeRoundIdx)}
+              className="w-full py-4 rounded-2xl bg-amber-600 text-white font-semibold
+                text-lg active:bg-amber-700 transition-colors shadow-lg shadow-amber-600/20
+                flex items-center justify-center gap-2"
+            >
+              <div className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+              Join Live Round &mdash; {getCourse(activeRound.courseId)?.name ?? `Round ${activeRoundIdx + 1}`}
+            </button>
+          )}
           {canStartNew && (
             <button
               onClick={onNewRound}

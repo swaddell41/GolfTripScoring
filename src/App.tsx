@@ -23,17 +23,20 @@ export default function App() {
   const loadTrip = useTripStore((s) => s.loadTrip);
   const subscribedTripId = useRef<string | null>(null);
 
-  const [screen, setScreen] = useState<Screen>('tripSetup');
+  const [screen, setScreen] = useState<Screen>(() => {
+    const s = useTripStore.getState();
+    if (!s.trip) return 'tripSetup';
+    if (s.activeRoundIndex !== null) return 'scorecard';
+    return 'dashboard';
+  });
 
   useEffect(() => {
     if (!trip) {
       setScreen('tripSetup');
-    } else if (activeRoundIndex !== null) {
-      setScreen('scorecard');
-    } else {
+    } else if (screen === 'tripSetup') {
       setScreen('dashboard');
     }
-  }, [trip, activeRoundIndex]);
+  }, [trip, screen]);
 
   useEffect(() => {
     if (!trip || !isFirebaseConfigured()) return;
@@ -56,6 +59,10 @@ export default function App() {
       return (
         <TripDashboard
           onNewRound={() => setScreen('roundSetup')}
+          onJoinRound={(roundIndex) => {
+            useTripStore.setState({ activeRoundIndex: roundIndex, currentHoleIndex: 0 });
+            setScreen('scorecard');
+          }}
           onViewScores={() => {
             revealScores();
             setScreen('fullScorecard');
