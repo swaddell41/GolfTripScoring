@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTripStore } from './store/tripStore';
+import { subscribeTripUpdates } from './firebase/sync';
+import { isFirebaseConfigured } from './firebase/config';
 import { TripSetup } from './components/setup/TripSetup';
 import { RoundSetup } from './components/setup/RoundSetup';
 import { TripDashboard } from './components/setup/TripDashboard';
@@ -18,6 +20,8 @@ export default function App() {
   const activeRoundIndex = useTripStore((s) => s.activeRoundIndex);
   const revealScores = useTripStore((s) => s.revealScores);
   const editRound = useTripStore((s) => s.editRound);
+  const loadTrip = useTripStore((s) => s.loadTrip);
+  const subscribedTripId = useRef<string | null>(null);
 
   const [screen, setScreen] = useState<Screen>('tripSetup');
 
@@ -30,6 +34,19 @@ export default function App() {
       setScreen('dashboard');
     }
   }, [trip, activeRoundIndex]);
+
+  useEffect(() => {
+    if (!trip || !isFirebaseConfigured()) return;
+    if (subscribedTripId.current === trip.id) return;
+    subscribedTripId.current = trip.id;
+
+    return subscribeTripUpdates(trip.id, (updated) => {
+      const current = useTripStore.getState().trip;
+      if (current && updated.lastUpdated > current.lastUpdated) {
+        loadTrip(updated);
+      }
+    });
+  }, [trip?.id, loadTrip]);
 
   switch (screen) {
     case 'tripSetup':

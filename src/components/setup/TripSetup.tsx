@@ -1,10 +1,21 @@
 import { useState } from 'react';
 import { useTripStore } from '../../store/tripStore';
-import { loadTripFromFirestore, subscribeTripUpdates } from '../../firebase/sync';
+import { syncTripToFirestore, loadTripFromFirestore, subscribeTripUpdates } from '../../firebase/sync';
+import { isFirebaseConfigured } from '../../firebase/config';
 import { TampaHero } from '../brand/TampaHero';
 
 interface TripSetupProps {
   onTripReady: () => void;
+}
+
+function startRealtimeSync(tripId: string) {
+  const loadTrip = useTripStore.getState().loadTrip;
+  subscribeTripUpdates(tripId, (updated) => {
+    const current = useTripStore.getState().trip;
+    if (current && updated.lastUpdated > current.lastUpdated) {
+      loadTrip(updated);
+    }
+  });
 }
 
 export function TripSetup({ onTripReady }: TripSetupProps) {
@@ -14,8 +25,13 @@ export function TripSetup({ onTripReady }: TripSetupProps) {
   const createTrip = useTripStore((s) => s.createTrip);
   const loadTrip = useTripStore((s) => s.loadTrip);
 
-  const handleCreate = () => {
-    createTrip();
+  const handleCreate = async () => {
+    const id = createTrip();
+    const trip = useTripStore.getState().trip;
+    if (trip && isFirebaseConfigured()) {
+      await syncTripToFirestore(trip, true);
+      startRealtimeSync(id);
+    }
     onTripReady();
   };
 
@@ -33,15 +49,14 @@ export function TripSetup({ onTripReady }: TripSetupProps) {
       const trip = await loadTripFromFirestore(code);
       if (trip) {
         loadTrip(trip);
-        subscribeTripUpdates(code, (updated) => {
-          const current = useTripStore.getState().trip;
-          if (current && updated.lastUpdated > current.lastUpdated) {
-            loadTrip(updated);
-          }
-        });
+        startRealtimeSync(code);
         onTripReady();
       } else {
-        setError('Trip not found. Check your code and try again.');
+        setError(
+          isFirebaseConfigured()
+            ? 'Trip not found. Check your code and try again.'
+            : 'Cloud sync is not configured. Both devices must be online.',
+        );
       }
     } catch {
       setError('Failed to load trip. You may be offline.');
