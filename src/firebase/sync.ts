@@ -1,6 +1,6 @@
 import {
   doc,
-  getDoc,
+  getDocFromServer,
   setDoc,
   onSnapshot,
   Timestamp,
@@ -61,8 +61,9 @@ export async function loadTripFromFirestore(tripId: string): Promise<Trip | null
 
   try {
     const tripRef = doc(db!, 'trips', tripId);
-    const snapshot = await getDoc(tripRef);
-    console.log('[Sync] Load result:', { tripId, exists: snapshot.exists() });
+    console.log('[Sync] Fetching from server (bypassing cache)...');
+    const snapshot = await getDocFromServer(tripRef);
+    console.log('[Sync] Load result:', { tripId, exists: snapshot.exists(), fromCache: snapshot.metadata.fromCache });
     if (snapshot.exists()) {
       return normalizeTimestamps(snapshot.data()) as Trip;
     }
