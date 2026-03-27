@@ -1,5 +1,9 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
@@ -20,18 +24,14 @@ console.log('[Firebase] Config check:', {
 });
 
 export const app = hasConfig ? initializeApp(firebaseConfig) : null;
-export const db = app ? getFirestore(app) : null;
+export const db = app
+  ? initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    })
+  : null;
 
 console.log('[Firebase] Init result:', { appCreated: !!app, dbCreated: !!db });
-
-if (db) {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Firestore persistence unavailable: multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Firestore persistence unavailable: browser not supported');
-    }
-  });
-}
 
 export const isFirebaseConfigured = (): boolean => !!hasConfig;
