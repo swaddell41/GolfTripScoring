@@ -9,11 +9,9 @@ interface EndRoundModalProps {
 export function EndRoundModal({ holesCompleted, onConfirm, onCancel }: EndRoundModalProps) {
   return (
     <ConfirmModal
-      title="End Round Early"
-      message={`You have completed ${holesCompleted} hole${holesCompleted !== 1 ? 's' : ''}. All game results will be calculated based on completed holes only.`}
-      secondMessage="This cannot be undone. Are you absolutely sure you want to end the round early?"
-      confirmText="End Round"
-      doubleConfirm
+      title="Leave Round"
+      message={`You've entered scores for ${holesCompleted} hole${holesCompleted !== 1 ? 's' : ''}. The round will stay active and you can return to it from the dashboard.`}
+      confirmText="Leave Round"
       onConfirm={onConfirm}
       onCancel={onCancel}
     />

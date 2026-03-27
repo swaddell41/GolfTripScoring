@@ -29,7 +29,6 @@ export function BlindScorecard({ onComplete, onReveal }: BlindScorecardProps) {
   const navigateHole = useTripStore((s) => s.navigateHole);
   const setCurrentHoleIndex = useTripStore((s) => s.setCurrentHoleIndex);
   const completeRound = useTripStore((s) => s.completeRound);
-  const endRoundEarly = useTripStore((s) => s.endRoundEarly);
   const finishEditingRound = useTripStore((s) => s.finishEditingRound);
   const confirmHoleScores = useTripStore((s) => s.confirmHoleScores);
   const setSkinsTieBreaker = useTripStore((s) => s.setSkinsTieBreaker);
@@ -137,12 +136,11 @@ export function BlindScorecard({ onComplete, onReveal }: BlindScorecardProps) {
     onComplete();
   }, [round, completeRound, onComplete]);
 
-  const handleEndEarly = useCallback(() => {
+  const handleLeaveRound = useCallback(() => {
     confirmHoleScores(currentHole);
-    endRoundEarly();
     setShowEndRound(false);
     onComplete();
-  }, [currentHole, confirmHoleScores, endRoundEarly, onComplete]);
+  }, [currentHole, confirmHoleScores, onComplete]);
 
   const handleFinishEditing = useCallback(() => {
     confirmHoleScores(currentHole);
@@ -274,7 +272,7 @@ export function BlindScorecard({ onComplete, onReveal }: BlindScorecardProps) {
       {showEndRound && (
         <EndRoundModal
           holesCompleted={completedHoles.length}
-          onConfirm={handleEndEarly}
+          onConfirm={handleLeaveRound}
           onCancel={() => setShowEndRound(false)}
         />
       )}
@@ -348,9 +346,8 @@ function DropdownMenu({
               onClick={() => { setOpen(false); onReveal(); }}
             />
             <MenuItem
-              label="End Round Early"
+              label="Leave Round"
               onClick={() => { setOpen(false); onEndRound(); }}
-              danger
             />
           </div>
         </>
