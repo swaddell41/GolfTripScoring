@@ -26,16 +26,22 @@ function normalizeTimestamps(obj: unknown): unknown {
 }
 
 export async function syncTripToFirestore(trip: Trip, immediate = false): Promise<void> {
-  if (!db || !isFirebaseConfigured()) return;
+  console.log('[Sync] syncTripToFirestore called', { tripId: trip.id, immediate, hasDb: !!db, configured: isFirebaseConfigured() });
+  if (!db || !isFirebaseConfigured()) {
+    console.warn('[Sync] Skipping sync — Firebase not configured');
+    return;
+  }
 
   if (debounceTimer) clearTimeout(debounceTimer);
 
   const doSync = async () => {
     try {
+      console.log('[Sync] Writing trip to Firestore...', trip.id);
       const tripRef = doc(db!, 'trips', trip.id);
       await setDoc(tripRef, trip);
+      console.log('[Sync] Trip written successfully:', trip.id);
     } catch (err) {
-      console.error('Failed to sync trip:', err);
+      console.error('[Sync] Failed to sync trip:', err);
     }
   };
 
@@ -47,17 +53,22 @@ export async function syncTripToFirestore(trip: Trip, immediate = false): Promis
 }
 
 export async function loadTripFromFirestore(tripId: string): Promise<Trip | null> {
-  if (!db || !isFirebaseConfigured()) return null;
+  console.log('[Sync] loadTripFromFirestore called', { tripId, hasDb: !!db, configured: isFirebaseConfigured() });
+  if (!db || !isFirebaseConfigured()) {
+    console.warn('[Sync] Skipping load — Firebase not configured');
+    return null;
+  }
 
   try {
     const tripRef = doc(db!, 'trips', tripId);
     const snapshot = await getDoc(tripRef);
+    console.log('[Sync] Load result:', { tripId, exists: snapshot.exists() });
     if (snapshot.exists()) {
       return normalizeTimestamps(snapshot.data()) as Trip;
     }
     return null;
   } catch (err) {
-    console.error('Failed to load trip:', err);
+    console.error('[Sync] Failed to load trip:', err);
     return null;
   }
 }
