@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#0f172a"/>
+  <!-- Skull / Jolly Roger vibe merged with golf -->
+  <!-- Golf flag as pirate mast -->
+  <line x1="50" y1="18" x2="50" y2="82" stroke="#34d399" stroke-width="3"/>
+  <!-- Pirate flag (skull-ish) -->
+  <rect x="50" y="18" width="22" height="16" rx="2" fill="#34d399" opacity="0.85"/>
+  <circle cx="57" cy="25" r="2" fill="#0f172a"/>
+  <circle cx="65" cy="25" r="2" fill="#0f172a"/>
+  <line x1="56" y1="30" x2="66" y2="30" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Crossed golf clubs behind -->
+  <line x1="30" y1="70" x2="70" y2="35" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+  <line x1="70" y1="70" x2="30" y2="35" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+  <!-- Golf ball -->
+  <circle cx="50" cy="82" r="5" fill="#34d399" opacity="0.5"/>
+  <!-- Palm frond left -->
+  <path d="M15 88 Q20 60 35 55" stroke="#34d399" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <path d="M15 88 Q25 65 38 62" stroke="#34d399" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <!-- Palm frond right -->
+  <path d="M85 88 Q80 60 65 55" stroke="#34d399" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <path d="M85 88 Q75 65 62 62" stroke="#34d399" stroke-width="1.5" fill="none" opacity="0.25"/>
+</svg>
