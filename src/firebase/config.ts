@@ -16,13 +16,6 @@ const firebaseConfig = {
 
 const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
 
-console.log('[Firebase] Config check:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasProjectId: !!firebaseConfig.projectId,
-  projectId: firebaseConfig.projectId,
-  configured: !!hasConfig,
-});
-
 export const app = hasConfig ? initializeApp(firebaseConfig) : null;
 export const db = app
   ? initializeFirestore(app, {
@@ -31,7 +24,5 @@ export const db = app
       }),
     })
   : null;
-
-console.log('[Firebase] Init result:', { appCreated: !!app, dbCreated: !!db });
 
 export const isFirebaseConfigured = (): boolean => !!hasConfig;
