@@ -33,10 +33,12 @@ export function createHoleScore(
 
 export function calculateStablefordPoints(netScore: number, par: number): number {
   const diff = netScore - par;
-  if (diff <= -2) return 3; // net eagle or better
-  if (diff === -1) return 2; // net birdie
-  if (diff === 0) return 1;  // net par
-  return 0;                   // net bogey or worse
+  if (diff <= -3) return 5;
+  if (diff === -2) return 4;
+  if (diff === -1) return 3;
+  if (diff === 0) return 2;
+  if (diff === 1) return 1;
+  return 0;
 }
 
 export function getNetTotalForRound(
